@@ -1,0 +1,6 @@
+Flask~=2.2.2
+waitress~=2.1.2
+praw~=7.6.1
+bootstrap-flask~=2.2.0
+Werkzeug~=2.2.2
+prawcore~=2.3.0

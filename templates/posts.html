@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <div class="jumbotron">
+      <h1 class="display-4">RandomActsofCards Flair Helper</h1>
+    </div>
+
+    {% if recent_error != '' %}
+        <div class="alert alert-warning" role="alert">
+            An error occurred recently: {{ recent_error }}
+        </div>
+    {% endif %}
+
+    {% for post_id, post_data in data.items() %}
+        <div class="row border rounded-lg mt-3 pt-1 bg-light">
+          <div class="col-md-12">
+            <h2>{{ post_data.title }}</h2>
+            <p><a href="{{ post_data.url }}">Link to post.</a> By /u/{{ post_data.author }}. Suggested RAOCFlair text:</p>
+            <!-- <p>Time: {{ post_data.timestamp }}. Reddit ID: {{ post_id }}.</p> -->
+            <pre class="border user-select-all"><code>xxx) [{{ post_data.author }}]({{ post_data.url }})</code></pre>
+
+            {% if post_data.mentioned_users_post == [] %}
+              <div class="alert alert-primary" role="alert">
+                Could not find any user in title or post. Manually check <a href="{{ post_data.url }}" class="alert-link">the post</a> for user mentions.
+              </div>
+            {% else %}
+              <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Users mentioned in post</th>
+                        <th scope="col">Link to RAOCFlair</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% if post_data.mentioned_users_post != [] %}
+                    {% for user_data in post_data.mentioned_users_post %}
+                    <tr>
+                        <th scope="row">{{ loop.index }}</th>
+                        <td>{{ user_data[0] }}</td>
+                        {% if user_data[1] == "" %}
+                        <td>No RAOCFlair post found. <a href="https://www.reddit.com/r/RAOCFlair/">Go to RAOCFlair.</a></td>
+                        {% else %}
+                        <td><a href="{{ user_data[1] }}">Latest RAOCFlair post</a></td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+                </tbody>
+              </table>
+              {% if post_data.multiple_mentions %}
+              <div class="alert alert-warning" role="alert">
+                There may be a user with multiple mentions. Manually check <a href="{{ post_data.url }}" class="alert-link">the post</a> for multiple mentions.
+              </div>
+              {% endif %}
+              {% if post_data.mystery_user %}
+              <div class="alert alert-info" role="alert">
+                Mystery sender was mentioned in post. Manually check <a href="{{ post_data.url }}" class="alert-link">the post</a> for information on the user.
+              </div>
+              {% endif %}
+            {% endif %}
+
+          </div>
+        </div>
+    {% endfor %}
+
+</div>
+
+{% endblock %}
