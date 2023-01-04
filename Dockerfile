@@ -14,9 +14,13 @@ WORKDIR /app
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
-COPY . .
-
+COPY run.sh ./
 RUN chmod a+x run.sh
+
+COPY templates ./templates
+COPY posts.py ./
+COPY app.py ./
+COPY raoc.py ./
 
 # USER user
 

@@ -16,10 +16,17 @@
     {% for post_id, post_data in data.items() %}
         <div class="row border rounded-lg mt-3 pt-1 bg-light">
           <div class="col-md-12">
-            <h2>{{ post_data.title }}</h2>
-            <p><a href="{{ post_data.url }}">Link to post.</a> By /u/{{ post_data.author }}. Suggested RAOCFlair text:</p>
+            <h3><a href="{{ post_data.url }}" class="text-reset">{{ post_data.title }}</a> <span class="badge badge-secondary">By /u/{{ post_data.author }}</span></h3>
+            <div class="row"><div class="col-md-12">Suggested RAOCFlair text:</div></div>
             <!-- <p>Time: {{ post_data.timestamp }}. Reddit ID: {{ post_id }}.</p> -->
-            <pre class="border user-select-all"><code>xxx) [{{ post_data.author }}]({{ post_data.url }})</code></pre>
+              <div class="row pb-1 align-items-center">
+                  <div class="col">
+                      <code id="{{ post_id }}">xxx) [{{ post_data.author }}]({{ post_data.url }})</code>
+                  </div>
+                  <div class="col-1">
+                      <button type="button" class="btn btn-sm btn-outline-success" data-toggle="button" aria-pressed="false" onclick="copy('{{ post_id }}')" id="copy{{ post_id }}">Copy</button>
+                  </div>
+              </div>
 
             {% if post_data.mentioned_users_post == [] %}
               <div class="alert alert-primary" role="alert">
@@ -67,5 +74,15 @@
     {% endfor %}
 
 </div>
+
+<script>
+  function copy(id) {
+  // Get the text field
+  var copyText = document.getElementById(id);
+
+   // Copy the text inside the text field
+  navigator.clipboard.writeText(copyText.textContent);
+}
+</script>
 
 {% endblock %}
