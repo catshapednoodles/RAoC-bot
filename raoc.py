@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 
 # variables
 user_regex = r"/?[Uu]/([A-Za-z0-9_-]+)"
-multiple_mentions_regex = r"([^\w-][Xx] ?\d+)|([^\w/-]\d+ ?[Xx])"
+multiple_mentions_regex = r"([^\w-][Xx] ?\d+)|([^\w/-]\d+ ?[Xx])|(^[Xx] ?\d+)|(^\d+ ?[Xx])"
 mystery_list = ["mystery user", "mystery sender"]
 
 RUNNING_IN_DOCKER = os.environ.get('RUNNING_IN_DOCKER', False)
