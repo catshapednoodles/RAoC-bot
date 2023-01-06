@@ -1,10 +1,13 @@
+import functools
 import logging
 import os
 import re
+import threading
 import time
 
 import praw
 import prawcore
+import schedule as schedule
 
 import posts as db
 
@@ -151,8 +154,56 @@ def catch_submissions():
         process_submission(submission)
 
 
+def catch_exceptions(cancel_on_failure=False):
+    def catch_exceptions_decorator(job_func):
+        @functools.wraps(job_func)
+        def wrapper(*args, **kwargs):
+            try:
+                return job_func(*args, **kwargs)
+            except:
+                import traceback
+                print(traceback.format_exc())
+                if cancel_on_failure:
+                    return schedule.CancelJob
+
+        return wrapper
+
+    return catch_exceptions_decorator
+
+
+@catch_exceptions()
+def run_continuously(interval=1):
+    """Continuously run, while executing pending jobs at each
+    elapsed time interval.
+    @return cease_continuous_run: threading. Event which can
+    be set to cease continuous run. Please note that it is
+    *intended behavior that run_continuously() does not run
+    missed jobs*. For example, if you've registered a job that
+    should run every minute and you set a continuous run
+    interval of one hour then your job won't be run 60 times
+    at each interval but only once.
+    """
+    cease_continuous_run = threading.Event()
+
+    class ScheduleThread(threading.Thread):
+        @classmethod
+        def run(cls):
+            while not cease_continuous_run.is_set():
+                schedule.run_pending()
+                time.sleep(interval)
+
+    continuous_thread = ScheduleThread()
+    continuous_thread.start()
+    return cease_continuous_run
+
+
 if __name__ == '__main__':
     db.create_database_and_tables()
+
+    logging.info("Schedule start: Delete old entries every 6 hours")
+    schedule.every(6).hours.do(db.delete_old_entries)
+    stop_run_continuously = run_continuously()
+
     logging.info("Starting RAOCFlair bot")
     while True:
         try:

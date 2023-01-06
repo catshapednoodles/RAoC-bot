@@ -24,17 +24,6 @@ def create_database_and_tables():
                     timestamp REAL
                 );
             """)
-        # conn.execute("""
-        #         CREATE TABLE IF NOT EXISTS HISTORICAL_DATA (
-        #             variable TEXT NOT NULL PRIMARY KEY,
-        #             value REAL
-        #         );
-        #     """)
-        # conn.execute("INSERT OR IGNORE INTO HISTORICAL_DATA (variable, value) VALUES ('total_value', 0.0)")
-        # conn.execute("INSERT OR IGNORE INTO HISTORICAL_DATA (variable, value) VALUES ('value_baseline', 0.0)")
-        # conn.execute("INSERT OR IGNORE INTO HISTORICAL_DATA (variable, value) VALUES ('total_bought_sold', 0.0)")
-        # conn.execute("INSERT OR IGNORE INTO HISTORICAL_DATA (variable, value) VALUES ('trigger_value', 0.0)")
-        # conn.execute("INSERT OR IGNORE INTO HISTORICAL_DATA (variable, value) VALUES ('amount_to_sell', 0.0)")
 
 
 def create_first_entry(post_id: str, author: str, title: str, url: str, timestamp: float):
@@ -79,18 +68,19 @@ def insert_to_db(post_id: str, author: str, title: str, url: str, timestamp: flo
         return post_id + " created"
 
 
-def delete_entry(post_id: str):
-    with sl.connect(database) as conn:
-        conn.execute("DELETE FROM RAOCPOSTS WHERE post_id='" + post_id + "'")
-        return post_id + " deleted"
+def delete_entry(conn, post_id: str):
+    logging.debug("Deleting entry with post_id " + post_id)
+    conn.execute("DELETE FROM RAOCPOSTS WHERE post_id='" + post_id + "'")
+    return post_id + " deleted"
 
 
 def delete_old_entries():
+    logging.debug("Deleting old entries")
     with sl.connect(database) as conn:
         data = conn.execute("SELECT post_id, timestamp FROM RAOCPOSTS")
         for row in data:
-            if datetime.datetime.fromtimestamp(row[1]) < datetime.datetime.now() - datetime.timedelta(days=7):
-                delete_entry(row[0])
+            if datetime.datetime.fromtimestamp(row[1]) < datetime.datetime.now() - datetime.timedelta(days=3):
+                delete_entry(conn, row[0])
 
 
 def check_if_post_in_database(post_id: str):
